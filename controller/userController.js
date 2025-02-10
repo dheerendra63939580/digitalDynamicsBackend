@@ -36,11 +36,11 @@ module.exports.signup = async (req, res) => {
 module.exports.login = async (req, res) => {
     try {
         const {email, password} = req.body;
-        const existingUser = User.findOne({email})
-        if (existingUser) {
-            return res.status(400).json({ message: "Email already in use" });
+        const existingUser = await User.findOne({email})
+        if (!existingUser) {
+            return res.status(400).json({ message: "Invaid Credentials" });
         }
-        bcrypt.compare(password, existingUser.passsword, async function(err, result) {
+        bcrypt.compare(password, existingUser.password, async function(err, result) {
             if(result) {
                 const token = tokenGenerator(existingUser.name, existingUser.email);
                 res.status(200).json({
