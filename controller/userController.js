@@ -58,3 +58,17 @@ module.exports.login = async (req, res) => {
         console.log(err)
     }
 }
+
+module.exports.getProfile = async (req, res) => {
+    try {
+        const token = req.headers["authorization"]?.split(" ")?.[1];
+         const { email } = jwt.verify(token, process.env.JSONWEBTOKEN_SECRET);
+         const data = await User.findOne({email}).select("name _id mobile email");
+         res.status(200).json({
+            message: "Profile found successfully",
+            data
+         })
+    } catch(err) {
+        console.log(err)
+    }
+}
