@@ -61,7 +61,6 @@ module.exports.getProductListing = async (req, res) => {
 }
 module.exports.findProductById = async (req, res) => {
     const {id} = req.params;
-    console.log(id)
     try {
         const data = await Product.findById(id);
         res.status(200).json({
