@@ -50,7 +50,6 @@ module.exports.getProductListing = async (req, res) => {
     const {category} = req.query;
     try {
         const data = await Product.find({category}).select('_id name ratings price image category');
-        console.log(data);
         res.status(200).json({
             message: "product found successfully",
             data: data
