@@ -71,3 +71,14 @@ module.exports.findProductById = async (req, res) => {
         console.log(err)
     }
 }
+module.exports.purchaseProduct = async (req, res) => {
+    try {
+        const allProducts = req.body;
+        const {id} = req.params;
+        const purchasedProducts = [];
+        const failedProducts = [];
+        
+    } catch(err) {
+        console.log(err)
+    }
+}
