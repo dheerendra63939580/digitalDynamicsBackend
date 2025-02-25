@@ -62,7 +62,6 @@ module.exports.login = async (req, res) => {
 module.exports.getProfile = async (req, res) => {
     try {
         const token = req.headers["authorization"]?.split(" ")?.[1];
-        console.log({token})
          const { email } = jwt.verify(token, process.env.JSONWEBTOKEN_SECRET);
          const data = await User.findOne({email}).select("name _id mobile email addresses");
          res.status(200).json({
@@ -74,7 +73,6 @@ module.exports.getProfile = async (req, res) => {
     }
 }
 module.exports.updateProfile = async (req, res) => {
-    console.log("update profile is working")
     try {
         const { isUpdatePassword, name, mobile, oldPassword, newPassword, id } = req.body;
         const existingUser = await User.findById(id)
@@ -86,7 +84,6 @@ module.exports.updateProfile = async (req, res) => {
                 })
             }
            const hash = await bcrypt.hash(newPassword, 11);
-           console.log({hash})
            const data = await User.findByIdAndUpdate(id, {name, mobile, password: hash}, {new: true}).select("name mobile");
            res.status(200).json({
             message: "Details updated successfully",
@@ -108,10 +105,8 @@ module.exports.updateProfile = async (req, res) => {
 }
 
 module.exports.addAddress = async (req, res) => {
-    try {
-        console.log("add address is hitting")
+    try { 
         const { id } = req.params;
-        console.log({id})
         const data = await User.findByIdAndUpdate(id, {$push: {addresses: req.body}}, {new: true, runValidators: true});
         res.status(201).json({
             message: "Address added successfully",
@@ -120,3 +115,56 @@ module.exports.addAddress = async (req, res) => {
         console.log(err)
     }
 }
+
+module.exports.updateAddress = (req, res) => {
+    const {userId, addressId} = req.params;
+    if(!userId || !addressId) {
+        return res.status(400).json({
+            message: "User id or address id is empty"
+        })
+    }
+    User.findOneAndUpdate(
+        {_id: userId, "addresses._id": addressId},
+        {$set: {"addresses.$": {...req.body, _id: addressId}}},
+        {runValidators: true}
+    )
+    .then((response) => {
+        if (!response) {
+            return res.status(404).json({ message: "User or address not found" });
+        }
+        res.status(200).json({
+            message: "Address updated successfully"
+        })
+    }).catch((err) => {
+        console.log(err)
+    })
+}
+
+
+module.exports.deleteAddress = (req, res) => {
+    const { userId, addressId } = req.params;
+
+    if (!userId || !addressId) {
+        return res.status(400).json({
+            message: "User id or address id is empty"
+        });
+    }
+
+    User.findOneAndUpdate(
+        { _id: userId },
+        { $pull: { addresses: { _id: addressId } } },
+        { new: true }
+    )
+    .then((response) => {
+        if (!response) {
+            return res.status(404).json({ message: "User or address not found" });
+        }
+        res.status(200).json({
+            message: "Address deleted successfully"
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+};
+
