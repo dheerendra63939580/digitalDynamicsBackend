@@ -1,5 +1,6 @@
 const { Product } = require("../model/productModel")
-
+const { User } = require("../model/userModel")
+const mongoose = require("mongoose")
 module.exports.findAllProductsCategoryWise = async (req, res) => {
     try {
         const response = await Product.find({});
@@ -74,8 +75,33 @@ module.exports.purchaseProduct = async (req, res) => {
     try {
         const allProducts = req.body;
         const {id} = req.params;
-        const purchasedProducts = [];
+        let purchasedProducts = [];
         const failedProducts = [];
+        for(let {_id, quantity, price} of allProducts) {
+            if (!mongoose.Types.ObjectId.isValid(_id)) {
+                failedProducts.push({ _id, reason: "Invalid product ID" });
+                continue;
+            }
+            const product = await Product.findById(_id);
+            if(!product) {
+                failedProducts.push(_id);
+            } else {
+                if(product?.stocks >= quantity && price === product.price) {
+                    await Product.findByIdAndUpdate(_id, {stocks: product?.stocks - quantity}, {new: true});
+                    await User.findByIdAndUpdate(id, {$push: {order: {
+                        _id,
+                        quantity,
+                        status: "Pending"
+                    }}})
+                    purchasedProducts.push(_id);
+                }
+            }
+        }
+        res.status(200).json({
+            message: purchasedProducts?.length ? "Products purchased successfully" : 
+                "Either price of product is increased or product is out of stock",
+            data: {failedProducts, purchasedProducts}
+        })
         
     } catch(err) {
         console.log(err)

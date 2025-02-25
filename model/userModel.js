@@ -45,11 +45,15 @@ const userSchema = new mongoose.Schema({
             },
             date: {
                 type: Date,
-                default: Date.now
+                default: Date.now()
             },
             quantity: {
                 type: Number,
 
+            },
+            address: {
+                type: mongoose.Schema.Types.ObjectId,
+                required: true
             }
         }
     ],
