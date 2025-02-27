@@ -171,16 +171,19 @@ module.exports.deleteAddress = (req, res) => {
 module.exports.getOrders = async (req, res) => {
     try {
         const {userId} = req.params;
-        const userData = await User.findById(userId);
+        const userData = await User.findById(userId) .populate({
+            path: "order._id",  // Assuming _id inside order is the product ID reference
+            select: "_id name", // Select only _id and name
+        });
         if(!userData) {
             res.status(400).json({
                 message: "Invalid user id",
             })
         }
-        console.log(userData)
+        console.log(userData.order)
         const ordersWithAddress = userData.order.map((value) => {
             const address =  userData.addresses.find((add) => value.address.toString() === add._id.toString());
-            return {...value, address: address};
+            return {...value.toObject(), address: address};
         })
         res.status(200).json({
             message: "success",
