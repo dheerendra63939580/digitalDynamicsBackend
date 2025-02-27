@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, login, getProfile, updateProfile, addAddress, updateAddress, deleteAddress } = require("../controller/userController");
+const { signup, login, getProfile, updateProfile, addAddress, updateAddress, deleteAddress, getOrders } = require("../controller/userController");
 const { tokenValidation } = require("../middleware/tokenValidation");
 const router = express.Router();
 router.post("/signup", signup)

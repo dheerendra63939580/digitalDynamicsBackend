@@ -178,6 +178,10 @@ module.exports.getOrders = async (req, res) => {
             })
         }
         console.log(userData)
+        res.status(200).json({
+            message: "success",
+            data: userData.order
+        })
     } catch(err) {
         console.log(err)
     }

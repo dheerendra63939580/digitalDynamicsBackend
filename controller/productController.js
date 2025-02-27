@@ -73,10 +73,10 @@ module.exports.findProductById = async (req, res) => {
 }
 module.exports.purchaseProduct = async (req, res) => {
     try {
-        const allProducts = req.body;
+        const {products: allProducts, addressId} = req.body;
         const {id} = req.params;
         let purchasedProducts = [];
-        const failedProducts = [];
+        let failedProducts = [];
         for(let {_id, quantity, price} of allProducts) {
             if (!mongoose.Types.ObjectId.isValid(_id)) {
                 failedProducts.push({ _id, reason: "Invalid product ID" });
@@ -84,14 +84,19 @@ module.exports.purchaseProduct = async (req, res) => {
             }
             const product = await Product.findById(_id);
             if(!product) {
-                failedProducts.push(_id);
+                failedProducts.push({_id, reason: "Porduct does not exist"});
+                continue;
+            } else if(product?.stocks < quantity || price !== product.price) {
+                failedProducts.push({ _id, reason: "Product is out of stocks or price has been changed" });
+                continue;
             } else {
                 if(product?.stocks >= quantity && price === product.price) {
                     await Product.findByIdAndUpdate(_id, {stocks: product?.stocks - quantity}, {new: true});
                     await User.findByIdAndUpdate(id, {$push: {order: {
                         _id,
                         quantity,
-                        status: "Pending"
+                        status: "Pending",
+                        address: addressId,
                     }}})
                     purchasedProducts.push(_id);
                 }

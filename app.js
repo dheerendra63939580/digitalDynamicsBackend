@@ -25,7 +25,10 @@ mongoose.connect(mongoUri)
 
 
 
-
+const addProduct = async() => {
+  const res = await Product.insertMany(arr)
+  console.log(res)
+}
 const arr = [
     {
       "name": "CoolBreeze AC 1.5 Ton",
@@ -413,5 +416,5 @@ const arr = [
         }
       
   ]
-
+  // addProduct()
   
