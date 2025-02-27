@@ -178,9 +178,13 @@ module.exports.getOrders = async (req, res) => {
             })
         }
         console.log(userData)
+        const ordersWithAddress = userData.order.map((value) => {
+            const address =  userData.addresses.find((add) => value.address.toString() === add._id.toString());
+            return {...value, address: address};
+        })
         res.status(200).json({
             message: "success",
-            data: userData.order
+            data: ordersWithAddress
         })
     } catch(err) {
         console.log(err)
