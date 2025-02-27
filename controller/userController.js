@@ -168,3 +168,17 @@ module.exports.deleteAddress = (req, res) => {
     });
 };
 
+module.exports.getOrders = async (req, res) => {
+    try {
+        const {userId} = req.params;
+        const userData = await User.findById(userId);
+        if(!userData) {
+            res.status(400).json({
+                message: "Invalid user id",
+            })
+        }
+        console.log(userData)
+    } catch(err) {
+        console.log(err)
+    }
+}
