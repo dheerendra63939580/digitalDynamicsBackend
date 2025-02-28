@@ -64,6 +64,11 @@ module.exports.getProfile = async (req, res) => {
         const token = req.headers["authorization"]?.split(" ")?.[1];
          const { email } = jwt.verify(token, process.env.JSONWEBTOKEN_SECRET);
          const data = await User.findOne({email}).select("name _id mobile email addresses");
+         if(!data) {  // when you have deleted database and token is valid
+            res.status(401).json({
+                message: "User does not exist"
+            })
+         }
          res.status(200).json({
             message: "Profile found successfully",
             data
@@ -141,46 +146,63 @@ module.exports.updateAddress = (req, res) => {
 }
 
 
-module.exports.deleteAddress = (req, res) => {
+module.exports.deleteAddress = async (req, res) => {
     const { userId, addressId } = req.params;
 
     if (!userId || !addressId) {
         return res.status(400).json({
-            message: "User id or address id is empty"
+            message: "User ID or address ID is empty",
         });
     }
 
-    User.findOneAndUpdate(
-        { _id: userId },
-        { $pull: { addresses: { _id: addressId } } },
-        { new: true }
-    )
-    .then((response) => {
-        if (!response) {
-            return res.status(404).json({ message: "User or address not found" });
+    try {
+        // Fetch user data and check if the address is used in an order
+        const userData = await User.findById(userId);
+        if (!userData) {
+            return res.status(404).json({ message: "User not found" });
         }
+
+        const orders = userData.order || [];
+        for (let x of orders) {
+            if (x?.address.toString() === addressId) {
+                return res.status(400).json({
+                    message: "Address cannot be deleted, it is used in your placed order",
+                });
+            }
+        }
+
+        // Proceed to delete the address if not used in an order
+        const response = await User.findOneAndUpdate(
+            { _id: userId },
+            { $pull: { addresses: { _id: addressId } } },
+            { new: true }
+        );
+
+        if (!response) {
+            return res.status(404).json({ message: "Address not found" });
+        }
+
         res.status(200).json({
-            message: "Address deleted successfully"
+            message: "Address deleted successfully",
         });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 module.exports.getOrders = async (req, res) => {
     try {
         const {userId} = req.params;
         const userData = await User.findById(userId) .populate({
-            path: "order._id",  // Assuming _id inside order is the product ID reference
-            select: "_id name", // Select only _id and name
+            path: "order.productId",  // Assuming _id inside order is the product ID reference
+            select: "_id name image", // Select only _id and name
         });
         if(!userData) {
             res.status(400).json({
                 message: "Invalid user id",
             })
         }
-        console.log(userData.order)
         const ordersWithAddress = userData.order.map((value) => {
             const address =  userData.addresses.find((add) => value.address.toString() === add._id.toString());
             return {...value.toObject(), address: address};
