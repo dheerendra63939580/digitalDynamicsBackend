@@ -93,7 +93,7 @@ module.exports.purchaseProduct = async (req, res) => {
                 if(product?.stocks >= quantity && price === product.price) {
                     await Product.findByIdAndUpdate(_id, {stocks: product?.stocks - quantity}, {new: true});
                     await User.findByIdAndUpdate(id, {$push: {order: {
-                        _id,
+                        productId: _id,
                         quantity,
                         status: "Pending",
                         address: addressId,
