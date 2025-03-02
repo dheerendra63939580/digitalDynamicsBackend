@@ -44,6 +44,7 @@ module.exports.findAllProductsCategoryWise = async (req, res) => {
 
     } catch (err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -57,6 +58,7 @@ module.exports.getProductListing = async (req, res) => {
         })
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 module.exports.findProductById = async (req, res) => {
@@ -69,6 +71,7 @@ module.exports.findProductById = async (req, res) => {
         })
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 module.exports.purchaseProduct = async (req, res) => {
@@ -110,5 +113,6 @@ module.exports.purchaseProduct = async (req, res) => {
         
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }

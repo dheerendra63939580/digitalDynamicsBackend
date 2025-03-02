@@ -30,6 +30,7 @@ module.exports.signup = async (req, res) => {
         });
    } catch(err) {
     console.log(err)
+    res.status(500).json({ message: "Internal server error" });
    }
 
 }
@@ -56,6 +57,7 @@ module.exports.login = async (req, res) => {
         });
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -75,6 +77,7 @@ module.exports.getProfile = async (req, res) => {
          })
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 module.exports.updateProfile = async (req, res) => {
@@ -106,6 +109,7 @@ module.exports.updateProfile = async (req, res) => {
 
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -118,6 +122,7 @@ module.exports.addAddress = async (req, res) => {
         })
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -142,6 +147,7 @@ module.exports.updateAddress = (req, res) => {
         })
     }).catch((err) => {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     })
 }
 
@@ -213,5 +219,6 @@ module.exports.getOrders = async (req, res) => {
         })
     } catch(err) {
         console.log(err)
+        res.status(500).json({ message: "Internal server error" });
     }
 }
