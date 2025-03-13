@@ -116,3 +116,38 @@ module.exports.purchaseProduct = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+module.exports.cancelOrder = async (req, res) => {
+    try {
+        const {userId, quantity,  orderId} = req.body;
+        const  { productId } = req.params;
+        if(!mongoose.Types.ObjectId.isValid(orderId) || !mongoose.Types.ObjectId.isValid(productId) || 
+            !mongoose.Types.ObjectId.isValid(userId) || quantity <= 0) {
+            return res.status(404).json({
+                message: "Invalid details"
+            })
+        }
+        const user = await User.findOneAndUpdate(
+            {_id: userId},
+            {$pull: {order: {_id: orderId}}}
+        )
+        if(!user) {
+            return res.status(404).json({
+                message: "User does not exist"
+            })
+        }
+        const product = await Product.findByIdAndUpdate(
+            productId, 
+            {$inc: {stocks: quantity}},
+            {new: true}
+        )
+        return res.status(200).json({
+            message: "Order cancelled successfully"
+        })
+    } catch(err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Internal server error"
+        })
+    }
+}

@@ -416,5 +416,5 @@ const arr = [
         }
       
   ]
-  // addProduct()
+  addProduct()
   
