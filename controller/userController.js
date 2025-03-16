@@ -85,9 +85,9 @@ module.exports.updateProfile = async (req, res) => {
         const { isUpdatePassword, name, mobile, oldPassword, newPassword, id } = req.body;
         const existingUser = await User.findById(id)
         if(isUpdatePassword) {
-            const isRight = bcrypt.compare(oldPassword, existingUser.password);
+            const isRight = await bcrypt.compare(oldPassword, existingUser.password);
             if(!isRight) {
-                res.status(400).json({
+                return res.status(400).json({
                     message: "Enter correct password to update the password"
                 })
             }
